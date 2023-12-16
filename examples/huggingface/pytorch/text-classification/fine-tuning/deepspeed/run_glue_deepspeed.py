@@ -48,6 +48,7 @@ from transformers.utils.versions import require_version
 
 from transformers.integrations import HfDeepSpeedConfig
 import deepspeed
+from deepspeed.accelerator import get_accelerator
 import intel_extension_for_pytorch
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -74,9 +75,9 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"  # To avoid warnings about parall
 # distributed setup
 local_rank = int(os.getenv("LOCAL_RANK", "0"))
 world_size = int(os.getenv("WORLD_SIZE", "1"))
-torch.xpu.set_device(local_rank)
+get_accelerator().set_device(local_rank)
 deepspeed.init_distributed()
-device = 'xpu:' + str(local_rank)
+device = get_accelerator().device_name(local_rank)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Finetune a transformers model on a text classification task")
